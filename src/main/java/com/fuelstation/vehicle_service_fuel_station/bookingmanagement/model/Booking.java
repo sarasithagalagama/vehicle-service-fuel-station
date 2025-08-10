@@ -1,6 +1,8 @@
 package com.fuelstation.vehicle_service_fuel_station.bookingmanagement.model;
 
 import jakarta.persistence.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,16 +16,21 @@ public class Booking {
     private String customerName;
     private String vehicleNumber;
     private String serviceType;
+    private String status;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime bookingDate;
 
     public Booking() {
     }
 
-    public Booking(String customerName, String vehicleNumber, String serviceType, LocalDateTime bookingDate) {
+    public Booking(String customerName, String vehicleNumber, String serviceType, LocalDateTime bookingDate,
+            String status) {
         this.customerName = customerName;
         this.vehicleNumber = vehicleNumber;
         this.serviceType = serviceType;
         this.bookingDate = bookingDate;
+        this.status = "Pending"; // Default status
     }
 
     public Long getId() {
@@ -65,4 +72,13 @@ public class Booking {
     public void setBookingDate(LocalDateTime bookingDate) {
         this.bookingDate = bookingDate;
     }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
 }

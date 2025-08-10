@@ -9,25 +9,29 @@ import java.util.List;
 @Service
 public class BookingService {
 
-    private final BookingRepository repository;
+    private final BookingRepository bookingRepository;
 
-    public BookingService(BookingRepository repository) {
-        this.repository = repository;
+    public BookingService(BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
     }
 
-    public List<Booking> findAll() {
-        return repository.findAll();
+    // Get all bookings
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
     }
 
-    public Booking save(Booking booking) {
-        return repository.save(booking);
+    // Save or update booking
+    public void saveBooking(Booking booking) {
+        bookingRepository.save(booking);
     }
 
-    public void deleteById(Long id) {
-        repository.deleteById(id);
+    // Get booking by ID
+    public Booking getBookingById(Long id) {
+        return bookingRepository.findById(id).orElse(null);
     }
 
-    public Booking findById(Long id) {
-        return repository.findById(id).orElse(null);
+    // Delete booking
+    public void deleteBooking(Long id) {
+        bookingRepository.deleteById(id);
     }
 }

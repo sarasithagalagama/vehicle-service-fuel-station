@@ -1,12 +1,12 @@
 package com.fuelstation.vehicle_service_fuel_station.bookingmanagement.controller;
 
 import com.fuelstation.vehicle_service_fuel_station.bookingmanagement.model.Booking;
+import com.fuelstation.vehicle_service_fuel_station.bookingmanagement.model.BookingStatus;
 import com.fuelstation.vehicle_service_fuel_station.bookingmanagement.service.BookingService;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/bookings")
@@ -18,10 +18,36 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
+    // LIST + search + filter + pagination + stat cards
     @GetMapping
-    public String listBookings(Model model) {
-        model.addAttribute("bookings", bookingService.findAll());
-        return "booking_list"; // Thymeleaf file name
+    public String listBookings(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(required = false) String status, // "Pending", "In Progress", etc.
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model) {
+
+        BookingStatus statusEnum = null;
+        if (status != null && !status.isBlank()) {
+            statusEnum = BookingStatus.valueOf(status.toUpperCase().replace(' ', '_'));
+        }
+
+        Page<Booking> pg = bookingService.findAll(q, statusEnum, page, size);
+
+        // stat cards
+        model.addAttribute("pendingCount", bookingService.countByStatus(BookingStatus.PENDING));
+        model.addAttribute("inProgressCount", bookingService.countByStatus(BookingStatus.IN_PROGRESS));
+        model.addAttribute("completedCount", bookingService.countByStatus(BookingStatus.COMPLETED));
+        model.addAttribute("cancelledCount", bookingService.countByStatus(BookingStatus.CANCELLED));
+
+        // table + paging + filters
+        model.addAttribute("bookings", pg.getContent());
+        model.addAttribute("page", pg.getNumber());
+        model.addAttribute("totalPages", pg.getTotalPages());
+        model.addAttribute("q", q);
+        model.addAttribute("status", status); // keep original text for the dropdown
+
+        return "booking_list"; // Thymeleaf page you already have
     }
 
     @GetMapping("/new")
@@ -32,33 +58,19 @@ public class BookingController {
 
     @PostMapping
     public String saveBooking(@ModelAttribute("booking") Booking booking) {
-        if (booking.getId() != null) {
-            Booking existing = bookingService.findById(booking.getId());
-            if (existing != null) {
-                booking.setBookingDate(existing.getBookingDate());
-            }
-        } else {
-            booking.setBookingDate(LocalDateTime.now());
-        }
-        bookingService.save(booking);
+        bookingService.saveBooking(booking);
         return "redirect:/bookings";
     }
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Booking booking = bookingService.findById(id);
-        if (booking == null) {
-            model.addAttribute("errorMessage", "Booking not found.");
-            model.addAttribute("bookings", bookingService.findAll());
-            return "booking_list";
-        }
-        model.addAttribute("booking", booking);
+        model.addAttribute("booking", bookingService.getBookingById(id));
         return "booking_form";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteBooking(@PathVariable Long id) {
-        bookingService.deleteById(id);
+        bookingService.deleteBooking(id);
         return "redirect:/bookings";
     }
 }
