@@ -8,6 +8,7 @@ import java.util.List;
 
 @Service
 public class BookingService {
+
     private final BookingRepository repository;
 
     public BookingService(BookingRepository repository) {
@@ -18,15 +19,15 @@ public class BookingService {
         return repository.findAll();
     }
 
-    public Booking findById(Long id) {
-        return repository.findById(id).orElse(null);
-    }
-
     public Booking save(Booking booking) {
         return repository.save(booking);
     }
 
     public void deleteById(Long id) {
         repository.deleteById(id);
+    }
+
+    public Booking findById(Long id) {
+        return repository.findById(id).orElse(null);
     }
 }

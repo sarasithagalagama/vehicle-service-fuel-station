@@ -14,7 +14,6 @@ public class Booking {
     private String customerName;
     private String vehicleNumber;
     private String serviceType;
-
     private LocalDateTime bookingDate;
 
     public Booking() {
@@ -27,7 +26,6 @@ public class Booking {
         this.bookingDate = bookingDate;
     }
 
-    // Getters & Setters
     public Long getId() {
         return id;
     }
