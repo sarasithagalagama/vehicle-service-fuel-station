@@ -40,13 +40,13 @@ public class BookingService {
     public Page<Booking> findAll(String q, String status, int page, int size) {
         Specification<Booking> spec = Specification.where(BookingSpecifications.search(q))
                 .and(BookingSpecifications.hasStatus(status));
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "bookingDate"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")); // <- by ID
         return bookingRepository.findAll(spec, pageable);
     }
 
     // ===== CRUD (kept) =====
     public List<Booking> getAllBookings() {
-        return bookingRepository.findAll(Sort.by(Sort.Direction.DESC, "bookingDate"));
+        return bookingRepository.findAll(Sort.by(Sort.Direction.DESC, "id")); // <- by ID
     }
 
     public void saveBooking(Booking booking) {
