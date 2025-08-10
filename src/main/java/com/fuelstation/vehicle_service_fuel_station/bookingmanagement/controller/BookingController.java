@@ -1,7 +1,6 @@
 package com.fuelstation.vehicle_service_fuel_station.bookingmanagement.controller;
 
 import com.fuelstation.vehicle_service_fuel_station.bookingmanagement.model.Booking;
-import com.fuelstation.vehicle_service_fuel_station.bookingmanagement.model.BookingStatus;
 import com.fuelstation.vehicle_service_fuel_station.bookingmanagement.service.BookingService;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -18,7 +17,7 @@ public class BookingController {
         this.bookingService = bookingService;
     }
 
-    // LIST + search + filter + pagination + stat cards
+    // List + search + status filter + pagination + stat cards
     @GetMapping
     public String listBookings(
             @RequestParam(defaultValue = "") String q,
@@ -27,27 +26,22 @@ public class BookingController {
             @RequestParam(defaultValue = "10") int size,
             Model model) {
 
-        BookingStatus statusEnum = null;
-        if (status != null && !status.isBlank()) {
-            statusEnum = BookingStatus.valueOf(status.toUpperCase().replace(' ', '_'));
-        }
-
-        Page<Booking> pg = bookingService.findAll(q, statusEnum, page, size);
+        Page<Booking> pg = bookingService.findAll(q, status, page, size);
 
         // stat cards
-        model.addAttribute("pendingCount", bookingService.countByStatus(BookingStatus.PENDING));
-        model.addAttribute("inProgressCount", bookingService.countByStatus(BookingStatus.IN_PROGRESS));
-        model.addAttribute("completedCount", bookingService.countByStatus(BookingStatus.COMPLETED));
-        model.addAttribute("cancelledCount", bookingService.countByStatus(BookingStatus.CANCELLED));
+        model.addAttribute("pendingCount", bookingService.countPending());
+        model.addAttribute("inProgressCount", bookingService.countProgress());
+        model.addAttribute("completedCount", bookingService.countCompleted());
+        model.addAttribute("cancelledCount", bookingService.countCancelled());
 
         // table + paging + filters
         model.addAttribute("bookings", pg.getContent());
         model.addAttribute("page", pg.getNumber());
         model.addAttribute("totalPages", pg.getTotalPages());
         model.addAttribute("q", q);
-        model.addAttribute("status", status); // keep original text for the dropdown
+        model.addAttribute("status", status);
 
-        return "booking_list"; // Thymeleaf page you already have
+        return "booking_list"; // Thymeleaf template
     }
 
     @GetMapping("/new")

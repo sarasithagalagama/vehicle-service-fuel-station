@@ -24,13 +24,21 @@ public class Booking {
     public Booking() {
     }
 
-    public Booking(String customerName, String vehicleNumber, String serviceType, LocalDateTime bookingDate,
-            String status) {
+    public Booking(String customerName, String vehicleNumber, String serviceType,
+            LocalDateTime bookingDate, String status) {
         this.customerName = customerName;
         this.vehicleNumber = vehicleNumber;
         this.serviceType = serviceType;
         this.bookingDate = bookingDate;
-        this.status = "Pending"; // Default status
+        this.status = status; // don't override here
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (this.status == null || this.status.isBlank())
+            this.status = "Pending";
+        if (this.bookingDate == null)
+            this.bookingDate = LocalDateTime.now();
     }
 
     public Long getId() {
